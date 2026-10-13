@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wydr GPT — świat wydr w jednym miejscu</title>
+<style>
+:root{--bg:#101b1a;--panel:#172725;--panel2:#203431;--line:#2d4843;--text:#edf7f1;--muted:#a7c0b7;--mint:#a8e6c4;--gold:#f4c879}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#203b34 0%,var(--bg) 60%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+.app{max-width:1100px;margin:auto;min-height:100vh;display:grid;grid-template-columns:250px 1fr}
+aside{padding:24px 16px;border-right:1px solid var(--line);background:#101b1acc}
+.brand{display:flex;align-items:center;gap:10px;font-size:21px;font-weight:800;letter-spacing:-.7px;padding:8px 10px 25px}.logo{width:40px;height:40px;border-radius:14px;background:linear-gradient(145deg,#baf1cd,#5cae89);display:grid;place-items:center;font-size:24px}
+.new{width:100%;padding:12px;border:1px solid #547a6d;border-radius:12px;background:#203a33;color:var(--text);font-weight:700;cursor:pointer}
+.side-label{font-size:11px;text-transform:uppercase;letter-spacing:1.4px;color:var(--muted);padding:25px 10px 10px}
+.topic{display:block;text-align:left;width:100%;padding:11px 10px;margin:3px 0;border:0;border-radius:10px;color:#d6e8df;background:transparent;cursor:pointer;font-size:13px}.topic:hover{background:var(--panel2)}
+.side-note{margin-top:30px;padding:14px;border:1px solid var(--line);border-radius:14px;color:var(--muted);font-size:12px;line-height:1.5}
+main{display:flex;flex-direction:column;min-width:0;min-height:100vh}.top{display:flex;justify-content:space-between;align-items:center;padding:22px 30px;border-bottom:1px solid #2d484380;color:var(--muted);font-size:13px}.online{color:var(--mint);display:flex;gap:7px;align-items:center}.dot{width:7px;height:7px;border-radius:50%;background:var(--mint)}
+.chat{width:min(780px,100%);margin:0 auto;padding:36px 25px 20px;flex:1;display:flex;flex-direction:column}
+.hero{text-align:center;margin:35px 0 25px}.otter{font-size:55px;filter:drop-shadow(0 8px 20px #0005)}h1{font-size:clamp(29px,5vw,43px);letter-spacing:-1.6px;margin:10px 0}.hero p{color:var(--muted);max-width:500px;margin:0 auto;line-height:1.6;font-size:15px}
+.suggestions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0 25px}.suggestion{padding:15px;background:#172725b8;border:1px solid var(--line);border-radius:14px;color:var(--text);text-align:left;cursor:pointer;transition:.2s}.suggestion:hover{border-color:#8bc9a8;transform:translateY(-1px)}.suggestion b{display:block;font-size:13px;margin-bottom:5px}.suggestion span{font-size:12px;color:var(--muted)}
+.messages{display:flex;flex-direction:column;gap:18px;padding-bottom:20px}.message{display:flex;gap:11px;align-items:flex-start;line-height:1.65;font-size:14px;animation:appear .2s ease}.message.user{flex-direction:row-reverse}.avatar{flex:0 0 32px;width:32px;height:32px;border-radius:11px;display:grid;place-items:center;background:#29473c}.user .avatar{background:#4a5c55}.bubble{max-width:calc(100% - 43px);padding:13px 15px;border:1px solid var(--line);border-radius:4px 15px 15px 15px;background:#172725}.user .bubble{border-radius:15px 4px 15px 15px;background:#294039}.bubble p{margin:0 0 9px}.bubble p:last-child{margin-bottom:0}.bubble ul{padding-left:20px;margin:8px 0}.bubble strong{color:#c6f0d4}
+.composer-wrap{position:sticky;bottom:0;padding:12px 25px 18px;background:linear-gradient(transparent,var(--bg) 22%)}.composer{max-width:780px;margin:auto;border:1px solid #4b6a60;border-radius:18px;background:#172725;display:flex;align-items:flex-end;padding:8px;gap:8px;box-shadow:0 12px 45px #0003}.composer textarea{flex:1;resize:none;max-height:150px;min-height:42px;border:0;outline:0;background:transparent;color:var(--text);padding:11px 9px;font:inherit;font-size:14px}.composer textarea::placeholder{color:#86a39a}.send{height:42px;width:44px;border:0;border-radius:12px;background:var(--mint);color:#10251b;font-size:20px;font-weight:900;cursor:pointer}.send:disabled{opacity:.45;cursor:not-allowed}.disclaimer{text-align:center;color:#79948a;font-size:10px;margin:9px auto 0;max-width:780px;line-height:1.5}
+@keyframes appear{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:700px){.app{grid-template-columns:1fr}aside{display:none}.top{padding:16px 18px}.chat{padding:20px 16px}.hero{margin:24px 0 20px}.suggestions{grid-template-columns:1fr}.composer-wrap{padding:10px 12px 14px}.top .right{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+  <div class="brand"><div class="logo">🦦</div><span>Wydr GPT</span></div>
+  <button class="new" id="newChat">＋ Nowa rozmowa</button>
+  <div class="side-label">Odkrywaj świat wydr</div>
+  <button class="topic" data-q="Jakie są gatunki wydr i czym się różnią?">🌍 Gatunki wydr</button>
+  <button class="topic" data-q="Co jedzą wydry i jak polują?">🐟 Dieta i polowanie</button>
+  <button class="topic" data-q="Jak wydry wychowują młode?">🍼 Życie rodzinne</button>
+  <button class="topic" data-q="Czy wydry są zagrożone i jak można je chronić?">🌿 Ochrona wydr</button>
+  <button class="topic" data-q="Podaj 10 zaskakujących ciekawostek o wydrach.">✨ Ciekawostki</button>
+  <div class="side-note">🧠 <b>Specjalista od wydr</b><br>Odpowiedzi oparte na wiedzy przyrodniczej. Gdy czegoś nie da się pewnie ustalić, Wydr GPT powinien to zaznaczyć.</div>
+</aside>
+<main>
+  <div class="top"><span>Twoje centrum wiedzy o wydrach</span><span class="online"><i class="dot"></i> Gotowy do rozmowy</span></div>
+  <section class="chat">
+    <div class="hero" id="hero"><div class="otter">🦦</div><h1>Witaj w Wydr GPT</h1><p>Zapytaj o wszystko, co dotyczy wydr — od ich niezwykłych zwyczajów po ochronę tych sprytnych ssaków.</p></div>
+    <div class="suggestions" id="suggestions">
+      <button class="suggestion" data-q="Dlaczego wydry trzymają się za łapki podczas snu?"><b>🫶 Dlaczego wydry trzymają się za łapki?</b><span>Poznaj prawdę i popularny mit.</span></button>
+      <button class="suggestion" data-q="Jakie wydry żyją w Polsce?"><b>🇵🇱 Jakie wydry żyją w Polsce?</b><span>Poznaj naszą rodzimą wydrę.</span></button>
+      <button class="suggestion" data-q="Czy można mieć wydrę w domu jako zwierzę?"><b>🏡 Czy wydra nadaje się do domu?</b><span>Potrzeby, dobrostan i prawo.</span></button>
+      <button class="suggestion" data-q="Opowiedz mi o największej wydrze świata."><b>📏 Która wydra jest największa?</b><span>Rekordziści świata wydr.</span></button>
+    </div>
+    <div class="messages" id="messages" aria-live="polite"></div>
+  </section>
+  <div class="composer-wrap">
+    <form class="composer" id="form"><textarea id="prompt" rows="1" placeholder="Zapytaj Wydr GPT o wydry..." aria-label="Wpisz pytanie"></textarea><button class="send" id="send" aria-label="Wyślij pytanie">↑</button></form>
+    <div class="disclaimer" id="statusNote">Tryb lokalny działa bez konta. Po uruchomieniu serwera i dodaniu klucza API Wydr GPT może korzystać z modelu AI.</div>
+  </div>
+</main>
+</div>
+<script>
+'use strict';
+const $ = (s) => document.querySelector(s);
+const messages = $('#messages'), promptBox = $('#prompt'), sendButton = $('#send');
+const questionBank = [
+ {q:'Gdzie żyje najwięcej wydr?',a:'Nie ma jednego miejsca, w którym żyje „najwięcej wydr” wszystkich gatunków. Wydry występują w wielu częściach świata, poza Australią i Antarktydą jako rodzimymi obszarami większości gatunków. Wydra olbrzymia żyje w Ameryce Południowej, a wydra europejska na dużym obszarze Europy, części Azji i północnej Afryki. Liczebność zależy od gatunku i regionu.',k:['najwięcej','populac','ile wydr','gdzie żyje','gdzie zyje']},
+ {q:'Co wydry najbardziej lubią jeść?',a:'To zależy od gatunku i miejsca. Wiele wydr chętnie poluje na ryby, ale jedzą też kraby, raki, żaby, owady i inne małe zwierzęta. Wydry morskie często jedzą małże, kraby i jeżowce.',k:['lubią jeść','lubia jesc','najbardziej jeść','najbardziej jesc','jedz','pokarm','dieta','ryb']},
+ {q:'Jakie wydry żyją w Polsce?',a:'W Polsce naturalnie występuje wydra europejska (Lutra lutra). Można ją spotkać przy rzekach, jeziorach, stawach i innych wodach, jeśli znajduje tam pokarm oraz bezpieczne kryjówki.',k:['polsk','w polsce','rodzime']},
+ {q:'Ile gatunków wydr istnieje?',a:'Zwykle wyróżnia się 13 współcześnie żyjących gatunków wydr. Należą do rodziny łasicowatych. Różnią się rozmiarami, dietą, trybem życia i środowiskiem.',k:['gatunk','ile rodzaj','rodzaj wydr']},
+ {q:'Która wydra jest największa?',a:'Do największych należy wydra olbrzymia (Pteronura brasiliensis) z Ameryki Południowej. Z ogonem może mierzyć około 1,5–1,8 m. To zwierzę społeczne, często żyjące w grupach rodzinnych.',k:['największ','najwieksz','olbrzym']},
+ {q:'Czy wydry trzymają się za łapki podczas snu?',a:'Niektóre wydry morskie bywają obserwowane, gdy trzymają się za łapy podczas odpoczynku na wodzie. Może to ograniczać rozdzielenie przez prąd. Nie jest to jednak zachowanie wszystkich wydr ani coś, co robią zawsze.',k:['łapk','lapk','trzymają się','trzymaja sie','sen']},
+ {q:'Czy wydry są inteligentne?',a:'Wydry potrafią uczyć się, rozwiązywać problemy i sprawnie zdobywać pokarm. Wydry morskie są znane z używania kamieni do rozbijania twardych muszli. Umiejętności różnią się między gatunkami i osobnikami.',k:['intelig','mądre','madre','nauk','spryt']},
+ {q:'Jak długo żyją wydry?',a:'Długość życia zależy od gatunku i warunków. W naturze wiele wydr żyje około 8–12 lat, a pod opieką człowieka niektóre mogą dożywać kilkunastu lub nawet ponad 20 lat. Nie jest to jedna wartość dla wszystkich gatunków.',k:['jak długo ży','ile lat ży','długość życia','dlugosc zycia','wiek']},
+ {q:'Czy wydry potrafią oddychać pod wodą?',a:'Nie. Wydry są ssakami i oddychają powietrzem płucami. Potrafią wstrzymać oddech podczas nurkowania, ale muszą wrócić na powierzchnię, by zaczerpnąć powietrza.',k:['oddychać pod','oddychac pod','pod wodą','pod woda','nurkuj']},
+ {q:'Jak długo wydry mogą nurkować?',a:'To zależy od gatunku, aktywności i sytuacji. Wydry potrafią nurkować przez kilkadziesiąt sekund, a niektóre mogą pozostawać pod wodą dłużej. Nie ma jednej wartości dla wszystkich wydr.',k:['jak długo nurk','ile czasu pod wod','wstrzymać oddech','wstrzymac oddech']},
+ {q:'Czy wydry są niebezpieczne dla ludzi?',a:'Wydry zwykle unikają ludzi i nie są zwierzętami, do których należy się zbliżać. Jak każde dzikie zwierzę mogą ugryźć, jeśli poczują się osaczone lub będą bronić młodych. Najlepiej obserwować je z dystansu i nigdy ich nie karmić ani nie dotykać.',k:['niebezpiecz','atak','ugryźć','ugryzc','ludzi']},
+ {q:'Czy można mieć wydrę w domu?',a:'Wydry są dzikimi zwierzętami o bardzo złożonych potrzebach i nie nadają się na domowe pupile. Potrzebują przestrzeni, wody, specjalistycznej diety i opieki. Ich posiadanie może też podlegać przepisom ochrony przyrody. Najlepiej obserwować je w naturze lub w odpowiednim ośrodku.',k:['w domu','zwierzę domowe','zwierze domowe','hodować','hodowac','legal']},
+ {q:'Jak wyglądają małe wydry?',a:'Młode wydry są niewielkie, mają miękkie futro i na początku życia są zależne od matki. Z czasem rosną, uczą się pływać i zdobywać pokarm. Tempo rozwoju zależy od gatunku.',k:['małe wydry','male wydry','młode','mlode','dzieci','rodzą']},
+ {q:'Czy wydry żyją w grupach?',a:'To zależy od gatunku. Wydry olbrzymie często żyją w grupach rodzinnych, natomiast wiele wydr europejskich prowadzi bardziej samotniczy tryb życia, poza okresem wychowywania młodych.',k:['grup','samot','rodzin','stad']},
+ {q:'Czy wydry mają kieszenie na kamienie?',a:'Wydry morskie mają luźne fałdy skóry pod przednimi łapami, w których mogą przechowywać pokarm lub kamień używany jako narzędzie. Nie są to prawdziwe kieszenie takie jak w ubraniu.',k:['kieszon','kamien','kamień','kamien']},
+ {q:'Dlaczego wydry mają wąsy?',a:'Wąsy wydry są bardzo czułe na dotyk i pomagają wykrywać ruchy wody oraz wyczuwać zdobycz, zwłaszcza gdy woda jest mętna lub słabo widać.',k:['wąs','was','wąsy','was']},
+ {q:'Czy wydry mają gęste futro?',a:'Tak. Wydry mają bardzo gęste futro, które pomaga zatrzymywać warstwę powietrza przy skórze i chronić ciało przed zimnem. Wydry morskie szczególnie polegają na futrze, bo nie mają grubej warstwy tłuszczu jak wiele innych ssaków morskich.',k:['futro','zimn','ciepł','ciepl']},
+ {q:'Gdzie śpią wydry?',a:'W zależności od gatunku wydry odpoczywają w norach, kryjówkach wśród korzeni i roślinności, na brzegu lub na wodzie. Wydry morskie mogą odpoczywać na powierzchni morza.',k:['gdzie śpi','gdzie spi','śpią','spia','nora']},
+ {q:'Czy wydry są spokrewnione z kotami?',a:'Nie. Wydry należą do rodziny łasicowatych, podobnie jak łasice, norki i borsuki. Koty należą do innej rodziny ssaków — kotowatych.',k:['kot','spokrewn','rodzina']},
+ {q:'Jak szybko pływają wydry?',a:'Wydry są świetnymi pływakami, ale prędkość zależy od gatunku i sytuacji. Ich opływowe ciało, silny ogon i błony między palcami pomagają im poruszać się w wodzie. Nie ma jednej prędkości właściwej dla wszystkich wydr.',k:['szybko pły','szybko ply','prędko','predko']},
+ {q:'Czy wydry mają naturalnych wrogów?',a:'Młode lub mniejsze wydry mogą paść ofiarą większych drapieżników, zależnie od regionu, np. dużych krokodyli, orłów lub dużych kotowatych. Dla wielu populacji bardzo istotne zagrożenia pochodzą też od ludzi, takie jak utrata siedlisk i ruch drogowy.',k:['wrog','drapież','drapiez','poluje na wydr']},
+ {q:'Czy wydry są zagrożone wyginięciem?',a:'Status ochronny różni się między gatunkami. Niektóre mają stabilniejsze populacje, inne są zagrożone przez utratę siedlisk, zanieczyszczenia, polowania i konflikty z ludźmi. Warto sprawdzać status konkretnego gatunku, a nie zakładać, że wszystkie wydry są w takiej samej sytuacji.',k:['zagroż','wygin','ochron','wymier']},
+ {q:'Jak można pomagać wydrom?',a:'Można wspierać ochronę czystych rzek i mokradeł, nie zaśmiecać brzegów, szanować dzikie zwierzęta i nie niszczyć ich kryjówek. Jeśli zobaczysz ranną wydrę, nie próbuj jej łapać — skontaktuj się z odpowiednimi służbami lub ośrodkiem rehabilitacji dzikich zwierząt.',k:['pomagać','pomagac','chronić','chronic','ratować','ratowac']},
+ {q:'Czy wydry wydają dźwięki?',a:'Tak. Wydry mogą piszczeć, gwizdać, warczeć, chrząkać lub wydawać inne odgłosy. Dźwięki pomagają im komunikować się, ostrzegać albo utrzymywać kontakt, a repertuar zależy od gatunku.',k:['dźwięk','dzwiek','głos','glos','odgłos','odglos']},
+ {q:'Czy wydry bawią się dla przyjemności?',a:'Wydry często wykazują zachowania przypominające zabawę, np. ślizganie się po błotnistych lub śnieżnych brzegach, gonitwy i zabawy przedmiotami. Zabawa może wspierać naukę ruchu i umiejętności społecznych, choć nie zawsze łatwo określić, co dokładnie odczuwają.',k:['bawi','zabaw','ślizg','slizg']},
+ {q:'Czy wydry są spokrewnione z bobrami?',a:'Nie są bliskimi krewnymi. Wydry należą do łasicowatych, a bobry do rodziny bobrowatych. Oba zwierzęta są związane z wodą, ale mają inne przystosowania i sposób życia.',k:['bobr','spokrewn']},
+ {q:'Jak rozpoznać ślady wydry?',a:'Ślady wydry można czasem znaleźć na błotnistych brzegach: mają zwykle pięć palców, a odciski mogą być połączone śladami ogona lub ślizgania. Rozpoznanie bywa trudne, więc warto porównać kilka odcisków i inne oznaki, np. odchody pozostawione w charakterystycznych miejscach.',k:['ślady','slady','trop','odcisk']},
+ {q:'Czy wydry żyją w morzu?',a:'Tak. Wydra morska żyje w przybrzeżnych wodach północnego Pacyfiku. Inne gatunki, jak wydra morska południowa, również związane są z wybrzeżami. Wiele pozostałych gatunków żyje głównie w wodach śródlądowych.',k:['morzu','morsk','ocean']},
+ {q:'Dlaczego wydry są ważne dla przyrody?',a:'Wydry są drapieżnikami i częścią sieci pokarmowych. Ich obecność może dostarczać informacji o stanie środowiska wodnego, choć sama obecność wydry nie oznacza automatycznie, że cały ekosystem jest zdrowy.',k:['ważne','wazne','ekosystem','przyrod']},
+ {q:'Podaj 5 ciekawostek o wydrach.',a:'🦦 1. Wydry mają bardzo gęste futro.\n🐾 2. Ich wąsy pomagają wyczuwać ruchy wody.\n🪨 3. Wydry morskie potrafią używać kamieni do otwierania muszli.\n🌊 4. Wydry są świetnymi pływakami, ale wiele gatunków spędza czas także na lądzie.\n👨‍👩‍👧 5. Niektóre gatunki żyją w grupach rodzinnych, inne częściej samotnie.',k:['ciekawost','fakt']},
+ {q:'Czy wydry zapadają w sen zimowy?',a:'Nie, wydry nie zapadają w typowy sen zimowy. Mogą być aktywne przez cały rok, choć ich zachowanie i czas spędzany na poszukiwaniu pokarmu zależą od pogody, lodu i dostępności pożywienia.',k:['sen zimowy','hibern','zimą','zima']},
+ {q:'Jak wydry polują?',a:'Wydry lokalizują zdobycz wzrokiem, słuchem i wrażliwymi wąsami, a następnie chwytają ją zębami i łapami. Sposób polowania zależy od gatunku oraz tego, czy zdobycz znajduje się w wodzie, na brzegu czy na dnie.',k:['poluj','łowi','lowi','zdobycz']},
+ {q:'Czy wydry są gryzoniami?',a:'Nie. Wydry są drapieżnymi ssakami z rodziny łasicowatych. Gryzonie, takie jak myszy i bobry, należą do innego rzędu ssaków.',k:['gryzo','mysz']},
+ {q:'Jak nazywa się naukowo wydra europejska?',a:'Nazwa naukowa wydry europejskiej to Lutra lutra. To gatunek występujący także w Polsce.',k:['naukowo','łaciń','lacinsk','lutra']},
+ {q:'Czy wydry mają pazury?',a:'Tak. Wydry mają pazury, które pomagają im chwytać pokarm i poruszać się. Kształt łap i pazurów różni się zależnie od gatunku i jego trybu życia.',k:['pazur','łap','lap']},
+ {q:'Czy wydry piją wodę?',a:'Tak. Wydry potrzebują wody do życia, a część potrzebnej wody uzyskują również z pożywienia. To, jak często piją bezpośrednio, zależy od diety i warunków.',k:['piją','pija','pić wod','pic wod']},
+ {q:'Czy wydry są aktywne nocą?',a:'Niektóre wydry są aktywne głównie o zmierzchu lub nocą, ale inne mogą być aktywne w dzień. Zależy to od gatunku, miejsca, dostępności pokarmu i obecności ludzi.',k:['nocą','noca','nocne','dzień','dzien']},
+ {q:'Jakie jest angielskie słowo na wydrę?',a:'Po angielsku wydra to „otter”. Wydra europejska to „Eurasian otter”, a wydra morska to „sea otter”.',k:['po angielsku','angielski','english','otter']},
+ {q:'Czy wydry mogą żyć w zanieczyszczonej wodzie?',a:'Wydry mogą czasem przebywać w środowiskach zmienionych przez człowieka, ale zanieczyszczenie wody i brzegów może szkodzić im bezpośrednio oraz ograniczać ilość zdobyczy. Czyste, różnorodne siedliska są dla nich korzystniejsze.',k:['zanieczyszcz','brudnej wod','czysta woda']},
+ {q:'Czy wydry mają ogon?',a:'Tak. Ogon pomaga im sterować i napędzać się w wodzie. Jego kształt i proporcje różnią się między gatunkami.',k:['ogon','ogony']},
+ {q:'Czy wydry potrafią chodzić po lądzie?',a:'Tak. Wydry poruszają się po lądzie, przemieszczają między zbiornikami wodnymi i odpoczywają w kryjówkach. Ich sprawność na lądzie różni się zależnie od gatunku.',k:['chodzić','chodzic','lądzie','ladzie','porusz']},
+ {q:'Dlaczego wydry mają opływowe ciało?',a:'Opływowy kształt ciała zmniejsza opór wody, dzięki czemu wydrom łatwiej pływać i nurkować. Pomagają im także silny ogon i łapy przystosowane do poruszania się w wodzie.',k:['opływ','oplyw','ciało','cialo','pływać','plywac']}
+];
+
+const fallback = 'Nie mam jeszcze pewnej odpowiedzi na to pytanie w lokalnej bazie. Możesz uruchomić tryb AI, konfigurując serwer zgodnie z instrukcją README, albo zapytać o gatunki, dietę, siedliska, zachowanie, młode lub ochronę wydr.';
+function norm(s){return String(s).toLocaleLowerCase('pl').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[?!.,;:]/g,'').trim()}
+function answerFor(q){
+ const n=norm(q); let best=null,score=0;
+ for(const item of questionBank){let current=0;for(const key of item.k){const k=norm(key);if(k && n.includes(k))current+=Math.max(1,k.length/5)}if(norm(item.q)===n)current+=10;if(current>score){score=current;best=item}}
+ if(best&&score>=1)return best.a;
+ if(/^(hej|czesc|witaj|siema|dzien dobry)/i.test(n))return 'Cześć! 🦦 Jestem Wydr GPT — asystent skupiony na wydrach. Zapytaj mnie o ich życie, jedzenie, gatunki albo niezwykłe umiejętności!';
+ return fallback;
+}
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function format(s){return escapeHTML(s).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*([^*]+)\*/g,'<em>$1</em>').replace(/\n/g,'<br>')}
+function addMessage(text,who){const el=document.createElement('div');el.className='message '+who;const avatar=document.createElement('div');avatar.className='avatar';avatar.textContent=who==='user'?'🙂':'🦦';const bubble=document.createElement('div');bubble.className='bubble';bubble.innerHTML=format(text);el.append(avatar,bubble);messages.appendChild(el);el.scrollIntoView({behavior:'smooth',block:'nearest'});return el}
+function renderSuggestions(){
+ const wrap=$('#suggestions');wrap.innerHTML='';const pool=[...questionBank];
+ for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+ pool.slice(0,4).forEach(item=>{const b=document.createElement('button');b.type='button';b.className='suggestion';const title=document.createElement('b');title.textContent='🦦 '+item.q;const desc=document.createElement('span');desc.textContent='Kliknij, aby poznać odpowiedź.';b.append(title,desc);b.addEventListener('click',()=>ask(item.q));wrap.appendChild(b)});wrap.style.display='grid';
+}
+async function ask(raw){
+ const q=String(raw||'').trim();if(!q||sendButton.disabled)return;
+ $('#hero').style.display='none';$('#suggestions').style.display='none';addMessage(q,'user');promptBox.value='';promptBox.style.height='auto';sendButton.disabled=true;
+ const loading=addMessage('Chwilka, szukam odpowiedzi…','bot');
+ try {
+   // The local file still works without a server. When served by server.js, this endpoint uses the AI API.
+   const response=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q})});
+   if(!response.ok)throw new Error('API offline');
+   const data=await response.json();loading.querySelector('.bubble').innerHTML=format(data.answer||fallback);
+ } catch(e) {
+   loading.querySelector('.bubble').innerHTML=format(answerFor(q));
+ }
+ sendButton.disabled=false;promptBox.focus();
+}
+$('#form').addEventListener('submit',e=>{e.preventDefault();ask(promptBox.value)});
+promptBox.addEventListener('input',()=>{promptBox.style.height='auto';promptBox.style.height=Math.min(promptBox.scrollHeight,150)+'px'});
+promptBox.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ask(promptBox.value)}});
+document.querySelectorAll('aside [data-q]').forEach(b=>b.addEventListener('click',()=>ask(b.dataset.q)));
+$('#newChat').addEventListener('click',()=>{messages.innerHTML='';$('#hero').style.display='block';renderSuggestions();promptBox.value='';promptBox.style.height='auto';promptBox.focus()});
+renderSuggestions();
+</script>
+</body>
+</html>
